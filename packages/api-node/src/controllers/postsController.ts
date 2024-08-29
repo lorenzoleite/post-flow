@@ -6,7 +6,6 @@ import {
   getPostsService,
   likePostService,
 } from 'src/services/postsService';
-import { validatePost } from 'src/validators/validatePost';
 
 export const getPostsController = async (req: Request, res: Response) => {
   try {

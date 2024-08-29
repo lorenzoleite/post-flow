@@ -1,24 +1,19 @@
 import { v4 as uuid } from 'uuid';
 import { Post } from 'src/entities/Post';
+import { posts } from 'src/database';
 
-let posts: Post[] = [
-  { id: '1', text: 'Postagem 1', likes: 0 },
-  { id: '2', text: 'Postagem 2', likes: 0 },
-  { id: '3', text: 'Postagem 3', likes: 0 },
-];
-
-export const getPostsService = async () => {
+export const getPostsService = async (): Promise<Post[]> => {
   return posts;
 };
 
-export const getPostByIdService = async (id: string) => {
+export const getPostByIdService = async (id: string): Promise<Post> => {
   const post = posts.find(post => post.id === id);
   if (!post) throw new Error('Post não encontrado.');
 
   return post;
 };
 
-export const createPostService = async (data: Post) => {
+export const createPostService = async (data: Post): Promise<Post> => {
   try {
     const newPost: Post = {
       id: uuid(),
@@ -34,21 +29,20 @@ export const createPostService = async (data: Post) => {
   }
 };
 
-export const deletePostService = async (id: string) => {
-  const postToDelete = posts.find(post => post.id === id);
-  if (!postToDelete) throw new Error('Post não encontrado.');
+export const deletePostService = async (id: string): Promise<Post> => {
+  const postIndex = posts.findIndex(post => post.id === id);
+  if (postIndex === -1) throw new Error('Post não encontrado.');
 
   try {
-    const updatedPosts = posts.filter(post => post.id !== id);
-    posts = updatedPosts;
+    const [deletedPost] = posts.splice(postIndex, 1);
 
-    return postToDelete;
+    return deletedPost;
   } catch (err) {
     throw new Error('Não foi possível excluir o post.');
   }
 };
 
-export const likePostService = async (id: string) => {
+export const likePostService = async (id: string): Promise<Post> => {
   const postToLike = posts.find(post => post.id === id);
   if (!postToLike) throw new Error('Post não encontrado.');
 

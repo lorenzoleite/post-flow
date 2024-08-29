@@ -1,11 +1,12 @@
 import { Router } from 'express';
+import { auth } from 'src/middlewares/authMiddleware';
 import {
   getUsersController,
   getUserByIdController,
   createUserController,
   updateUserController,
   deleteUserController,
-} from '../controllers/usersController';
+} from 'src/controllers/usersController';
 
 export const usersRouter = Router();
 

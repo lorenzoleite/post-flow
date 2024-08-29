@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import {
   createUserService,
   deleteUserService,
@@ -6,7 +6,6 @@ import {
   getUsersService,
   updateUserService,
 } from 'src/services/usersService';
-import { validateUser } from 'src/validators/validateUser';
 
 export const getUsersController = async (req: Request, res: Response) => {
   try {
@@ -22,7 +21,7 @@ export const getUsersController = async (req: Request, res: Response) => {
   }
 };
 
-export const getUserByIdController = async (req: Request, res: Response) => {
+export const getUserByIdController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     const user = await getUserByIdService(id);

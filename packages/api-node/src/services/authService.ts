@@ -1,17 +1,19 @@
 import jwt from 'jsonwebtoken';
 import bcryptjs from 'bcryptjs';
+
 import { serverConfig } from 'src/config/server';
 import { users } from 'src/database';
 import { AuthError } from 'src/error/AuthError';
+import { NotFoundError } from 'src/error/NotFoundError';
 
 const { APP_SECRET } = serverConfig;
 
 export const authService = async (email: string, password: string) => {
   const user = users.find(user => user.email === email);
 
-  if (!user) throw new AuthError('User not found.', 404);
+  if (!user) throw new NotFoundError('User not found.');
 
-  if (!(await bcryptjs.compare(password, user.password))) throw new AuthError('Invalid password.', 401);
+  if (!(await bcryptjs.compare(password, user.password))) throw new AuthError('Invalid password.');
 
   const token = jwt.sign({ id: user.id }, APP_SECRET, { expiresIn: '1d' });
 

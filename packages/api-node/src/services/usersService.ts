@@ -2,6 +2,8 @@ import bcryptjs from 'bcryptjs';
 import { v4 as uuid } from 'uuid';
 import { User } from 'src/entities/User';
 import { users } from 'src/database';
+import { NotFoundError } from 'src/error/NotFoundError';
+import { ConflictError } from 'src/error/ConflictError';
 
 export const getUsersService = async (): Promise<User[]> => {
   return users;
@@ -9,60 +11,48 @@ export const getUsersService = async (): Promise<User[]> => {
 
 export const getUserByIdService = async (id: string): Promise<User> => {
   const user = users.find(user => user.id === id);
-  if (!user) throw new Error('Usuário não encontrado.');
+  if (!user) throw new NotFoundError('User not found.');
 
   return user;
 };
 
 export const createUserService = async (data: User): Promise<User> => {
   const existingUser = users.find(user => user.email === data.email);
-  if (existingUser) throw new Error('Usuário já cadastrado com este e-mail.');
+  if (existingUser) throw new ConflictError('User already registered.');
 
-  try {
-    const passwordHash = await bcryptjs.hash(data.password, 8);
-    const newUser: User = {
-      id: uuid(),
-      name: data.name,
-      description: data.description,
-      email: data.email,
-      password: passwordHash,
-    };
+  const passwordHash = await bcryptjs.hash(data.password, 8);
+  const newUser: User = {
+    id: uuid(),
+    name: data.name,
+    description: data.description,
+    email: data.email,
+    password: passwordHash,
+  };
 
-    users.push(newUser);
+  users.push(newUser);
 
-    return newUser;
-  } catch (err) {
-    throw new Error('Não foi possível cadastrar o usuário.');
-  }
+  return newUser;
 };
 
 export const updateUserService = async (id: string, data: User): Promise<User> => {
   const userToUpdate = users.find(user => user.id === id);
-  if (!userToUpdate) throw new Error('Usuário não encontrado.');
+  if (!userToUpdate) throw new NotFoundError('User not found.');
 
-  try {
-    const passwordHash = await bcryptjs.hash(data.password, 8);
+  const passwordHash = await bcryptjs.hash(data.password, 8);
 
-    userToUpdate.name = data.name;
-    userToUpdate.description = data.description;
-    userToUpdate.email = data.email;
-    userToUpdate.password = passwordHash;
+  userToUpdate.name = data.name;
+  userToUpdate.description = data.description;
+  userToUpdate.email = data.email;
+  userToUpdate.password = passwordHash;
 
-    return userToUpdate;
-  } catch (err) {
-    throw new Error('Não foi possível editar o usuário.');
-  }
+  return userToUpdate;
 };
 
 export const deleteUserService = async (id: string): Promise<User> => {
   const userIndex = users.findIndex(user => user.id === id);
-  if (userIndex === -1) throw new Error('Usuário não encontrado.');
+  if (userIndex === -1) throw new NotFoundError('User not found.');
 
-  try {
-    const [deletedUser] = users.splice(userIndex, 1);
+  const [deletedUser] = users.splice(userIndex, 1);
 
-    return deletedUser;
-  } catch (err) {
-    throw new Error('Não foi possível excluir o usuário.');
-  }
+  return deletedUser;
 };
